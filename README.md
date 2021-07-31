@@ -1,2 +1,59 @@
 # dbatools-restapi
  Using a container with dbatools and pode server to wrap dbatools powershell cmdlets as a restul api we can abstract database lifecycle managent to an http client
+
+ - [dbatools-restapi](#dbatools-restapi)
+  - [sql server on a linux and a sidecar container for dbatools restapi](#sql-server-on-a-linux-and-a-sidecar-container-for-dbatools-restapi)
+  - [Other sql server](#other-sql-server)
+    - [sa account](#sa-account)
+
+ ## SQL Server in a container with a sidecar
+You can use docker compose to build and up everything in one go.
+
+
+
+ ## Other sql server
+
+ You can use the docker file to run stand alone and target another server. Doing so will require you to give the container network access.
+
+ ``` powershell
+$ContainerName = 'standalone'
+$HostPort = 8080
+$ImageName = 'quadmanswe/dbatools-restapi:latest'
+Invoke-Command { docker stop $ContainerName } -ErrorAction "SilentlyContinue" | Out-Null
+Invoke-Command { docker rm   $ContainerName } -ErrorAction "SilentlyContinue" | Out-Null
+Write-Host "starting container $ContainerName on port $HostPort from the image $ImageName"
+docker run -d --name $ContainerName -p "$($HostPort):8080" $ImageName
+ ```
+
+ ### sa account
+If you are using another target server than the one created with docker-compose, you need to manually add the corresponding sa account to that instance.
+
+``` powershell
+Import-Module dbatools
+# declare the variables from the file so they are in powershell.
+gc .env | % {
+    $n,$v = $_.Split('=')
+    set-variable -Name $n -Value $v
+}
+# Set variables for localhost sql server sa account creation
+New-DbaLogin -sqlinstance "localhost,$($DB_INTERNALPORT)" -login $SA_USER -securepassword ( $SA_PASSWORD | convertto-securestring -asplaintext -force ) -force | out-null
+
+# WARNING: this allows the user from your env file to be the sysadmin of the sql instance you are targetting. Double check these settings before you run.
+# - this is to allow the user to be able to create, delete, snapshot ANY database. -
+# do not run this if you value the data that is inside this database instance.
+Add-DbaServerRoleMember -sqlinstance "localhost,$($DB_INTERNALPORT)" -Login $SA_USER -serverrole 'sysadmin' -confirm:$false
+``` 
+
+Surf to http://localhost:8080/ in chrome to see that the site is up
+
+``` powershell
+Function Invoke-SidecarRequest {
+    [CmdletBinding()]
+    param(
+        [string]$MethodName,
+        [string]$Uri = 'http://localhost:8080'
+    )
+    Write-Verbose "Calling restmethod [$MethodName] on endpoint [$Uri]"
+    return Invoke-Restmethod -uri "$Uri/$MethodName" -TimeoutSec 60
+}
+```
