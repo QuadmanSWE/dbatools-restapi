@@ -98,7 +98,6 @@ Start-PodeServer -Threads 1 {
         catch {
             $_ | Write-PodeErrorLog
             Write-PodeTextResponse -Value $using:errormessage
-            Write-PodeTextResponse -Value "`r`nIf you are targetting a sql server instance running on windows, create the snapshot without this service, it can still be restored."
         }
     }
 
