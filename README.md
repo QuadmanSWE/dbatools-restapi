@@ -1,8 +1,8 @@
 # dbatools-restapi
- Using a container with dbatools and pode server to wrap dbatools powershell cmdlets as a restul api we can abstract database lifecycle managent to an http client
+ Using a container with dbatools and pode server to wrap dbatools powershell cmdlets as a REST API we can abstract database lifecycle managent to an http client
 
- - [dbatools-restapi](#dbatools-restapi)
-  - [sql server on a linux and a sidecar container for dbatools restapi](#sql-server-on-a-linux-and-a-sidecar-container-for-dbatools-restapi)
+- [dbatools-restapi](#dbatools-restapi)
+  - [SQL Server in a container with a sidecar](#sql-server-in-a-container-with-a-sidecar)
   - [Other sql server](#other-sql-server)
     - [sa account](#sa-account)
 

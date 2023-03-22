@@ -18,7 +18,7 @@ Start-PodeServer -Threads 1 {
     #this is why we are here
     Import-PodeModule -Name dbatools;
     
-    #put he http ingress on the same port that you expose in the docker file
+    #put the http ingress on the same port that you expose in the docker file
     Add-PodeEndpoint -Address * -Port 8080 -Protocol Http
 
     #Region utility and debugging methods
