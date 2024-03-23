@@ -1,31 +1,34 @@
 # dbatools-restapi
+
  Using a container with dbatools and pode server to wrap dbatools powershell cmdlets as a REST API we can abstract database lifecycle managent to an http client
+
+ It can be run stand alone or bundled together with an sql server server container as a side car for testing.
 
 - [dbatools-restapi](#dbatools-restapi)
   - [SQL Server in a container with a sidecar](#sql-server-in-a-container-with-a-sidecar)
   - [Other sql server](#other-sql-server)
     - [sa account](#sa-account)
 
- ## SQL Server in a container with a sidecar
+## SQL Server in a container with a sidecar
+
 You can use docker compose to build and up everything in one go.
 
+## Other sql server
 
+You can use the docker file to run stand alone and target another server. Doing so will require you to give the container network access.
 
- ## Other sql server
-
- You can use the docker file to run stand alone and target another server. Doing so will require you to give the container network access.
-
- ``` powershell
+``` powershell
 $ContainerName = 'standalone'
 $HostPort = 8080
-$ImageName = 'quadmanswe/dbatools-restapi:latest'
+$ImageName = 'dsoderlund/dbatools-restapi:latest'
 Invoke-Command { docker stop $ContainerName } -ErrorAction "SilentlyContinue" | Out-Null
 Invoke-Command { docker rm   $ContainerName } -ErrorAction "SilentlyContinue" | Out-Null
-Write-Host "starting container $ContainerName on port $HostPort from the image $ImageName"
+Write-Host "Starting container $ContainerName on port $HostPort from the image $ImageName"
 docker run -d --name $ContainerName -p "$($HostPort):8080" $ImageName
- ```
+```
 
- ### sa account
+### sa account
+
 If you are using another target server than the one created with docker-compose, you need to manually add the corresponding sa account to that instance.
 
 ``` powershell
@@ -44,7 +47,7 @@ New-DbaLogin -sqlinstance "localhost,$($DB_INTERNALPORT)" -login $SA_USER -secur
 Add-DbaServerRoleMember -sqlinstance "localhost,$($DB_INTERNALPORT)" -Login $SA_USER -serverrole 'sysadmin' -confirm:$false
 ``` 
 
-Surf to http://localhost:8080/ in chrome to see that the site is up
+Surf to http://localhost:8080/ in your browser to see that the site is up
 
 ``` powershell
 Function Invoke-SidecarRequest {
