@@ -2,7 +2,7 @@
 $splat = @{
     SqlInstance   = $env:DB_SERVICENAME
     Database      = $env:DB_NAME
-    SqlCredential = (New-Object PSCredential $env:SA_USER, ($env:SA_PASSWORD | ConvertTo-SecureString -AsPlainText -Force))
+    SqlCredential = (New-Object PSCredential $env:SA_USER, ($env:MSSQL_SA_PASSWORD | ConvertTo-SecureString -AsPlainText -Force))
 }
 $snapshotsuffix = $env:SNAPSHOTSUFFIX
 
@@ -11,14 +11,14 @@ $errormessage = 'errors logged, check /Errors'
 $welcomemessage = 'Hello, this is not swagger. But you can still get some info! Commands: /Ping /Errors /DebugConfig /DatabaseExists /CreateDatabase /DropDatabase /SnapshotDatabase /RestoreDatabase'
 
 Start-PodeServer -Threads 1 {
-
+    Set-DbatoolsInsecureConnection
     #errors are written to a log file, the content of each logfile can be accessed on /errors
     New-PodeLoggingMethod -File -Name 'errors' -Path '/usr/src/app/logs' | Enable-PodeErrorLogging -Levels Error, Warning, Informational, Verbose
 
     #this is why we are here
     Import-PodeModule -Name dbatools;
     
-    #put he http ingress on the same port that you expose in the docker file
+    #put the http ingress on the same port that you expose in the docker file
     Add-PodeEndpoint -Address * -Port 8080 -Protocol Http
 
     #Region utility and debugging methods
@@ -98,7 +98,6 @@ Start-PodeServer -Threads 1 {
         catch {
             $_ | Write-PodeErrorLog
             Write-PodeTextResponse -Value $using:errormessage
-            Write-PodeTextResponse -Value "`r`nIf you are targetting a sql server instance running on windows, create the snapshot without this service, it can still be restored."
         }
     }
 
