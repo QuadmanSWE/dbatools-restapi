@@ -1,3 +1,5 @@
+Push-Location .\example_implementation
+
 # Let's make sure we are at the starting state
 docker-compose down
 
@@ -5,7 +7,7 @@ docker-compose down
 . .\Invoke-SidecarRequest.ps1
 
 # jump in and start the containers
-Push-Location .\example_implementation
+
 docker-compose up -d 
 
 #Region await desired state
@@ -99,6 +101,8 @@ Invoke-SidecarRequest 'DropDatabase'
 #You can figure out the rest
 Invoke-SidecarRequest 'DatabaseExists' # should be False
 
-
+# Shut it down
 docker-compose down
+
+# Jump back to where you started
 Pop-Location

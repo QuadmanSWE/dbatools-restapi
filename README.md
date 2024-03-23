@@ -40,7 +40,7 @@ gc .env | % {
     set-variable -Name $n -Value $v
 }
 # Set variables for localhost sql server sa account creation
-New-DbaLogin -sqlinstance "localhost,$($DB_INTERNALPORT)" -login $SA_USER -securepassword ( $SA_PASSWORD | convertto-securestring -asplaintext -force ) -force | out-null
+New-DbaLogin -sqlinstance "localhost,$($DB_INTERNALPORT)" -login $SA_USER -securepassword ( $MSSQL_SA_PASSWORD | convertto-securestring -asplaintext -force ) -force | out-null
 
 # WARNING: this allows the user from your env file to be the sysadmin of the sql instance you are targetting. Double check these settings before you run.
 # - this is to allow the user to be able to create, delete, snapshot ANY database. -

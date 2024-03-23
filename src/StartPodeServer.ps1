@@ -2,7 +2,7 @@
 $splat = @{
     SqlInstance   = $env:DB_SERVICENAME
     Database      = $env:DB_NAME
-    SqlCredential = (New-Object PSCredential $env:SA_USER, ($env:SA_PASSWORD | ConvertTo-SecureString -AsPlainText -Force))
+    SqlCredential = (New-Object PSCredential $env:SA_USER, ($env:MSSQL_SA_PASSWORD | ConvertTo-SecureString -AsPlainText -Force))
 }
 $snapshotsuffix = $env:SNAPSHOTSUFFIX
 
