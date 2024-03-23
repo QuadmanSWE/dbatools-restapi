@@ -21,6 +21,8 @@ task BuildImage {
     docker build --tag $dockImageName .
 }
 
+task build BuildImage
+
 task RunContainer {
     docker run -d --name $name -p "$($port):8080" $dockImageName
 }
@@ -28,6 +30,7 @@ task RunContainer {
 task TagVersion {
     $newtag = "v$((gc VERSION))"
     docker tag $dockImageName "$($name):$($newtag)"
+    Write-Host "Tagged as $($name):$($newtag)"
 }
 
 task UpdateVersion {
