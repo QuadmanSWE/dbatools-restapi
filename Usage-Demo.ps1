@@ -1,34 +1,45 @@
+# Let's make sure we are at the starting state
 docker-compose down
+
+# dot source (load) the function
 . .\Invoke-SidecarRequest.ps1
+
+# jump in and start the containers
 Push-Location .\example_implementation
 docker-compose up -d 
 
 #Region await desired state
-$ErrorActionPreference = 'SilentlyContinue'
-$connected = $false; $attempts = 0; [string]$result = $null;
-while (!$connected -and $attempts -lt 5) {
-    start-sleep 5
-    try {
-        $result = Invoke-SidecarRequest 'Ping'
-    }
-    catch {
-        $result = $null;
-    }
-    if ($result) {
-        $retval = $result -match '(?<=\[)(.*?)(?=\])' #check for any value between brackets []
-        if ($retval -eq 'True') {
-            $connected = $true
+Function Wait-ForContainerConnectivity {
+    param(
+        [string]$Uri = 'http://localhost:8080'
+    )
+    $connected = $false; $attempts = 0; [string]$result = $null;
+    while (!$connected -and $attempts -lt 5) {
+        start-sleep 5
+        try {
+            $result = Invoke-SidecarRequest 'Ping'
         }
+        catch {
+            $result = $null;
+        }
+        if ($result) {
+            $retval = $result -match '(?<=\[)(.*?)(?=\])' #check for any value between brackets []
+            if ($retval -eq 'True') {
+                $connected = $true
+            }
+        }
+        $attempts++;
     }
-    $attempts++;
+    if ($connected) {
+        write-host "Connection to container and container connect to sql server established after [$attempts] attempts"
+    }
+    else {
+        throw  "Could not affirm that that the container is connected to sql server after [$attempts] attempts"
+    }
 }
-if ($connected) {
-    write-host "Connection to container and container connect to sql server established after [$attempts] attempts"
-}
-else {
-    throw  "Could not affirm that that the container is connected to sql server after [$attempts] attempts"
-}
+Wait-ForContainerConnectivity
 #EndRegion
+
 $ErrorActionPreference = 'Stop'
 
 #First thing is first, I do not expect there to be a database:

@@ -8,6 +8,7 @@
   - [SQL Server in a container with a sidecar](#sql-server-in-a-container-with-a-sidecar)
   - [Other sql server](#other-sql-server)
     - [sa account](#sa-account)
+  - [Example](#example)
 
 ## SQL Server in a container with a sidecar
 
@@ -60,3 +61,7 @@ Function Invoke-SidecarRequest {
     return Invoke-Restmethod -uri "$Uri/$MethodName" -TimeoutSec 60
 }
 ```
+
+## Example 
+
+Use Usage-Demo.ps1 to try out the features on top of sql server 2022 on express in docker.
