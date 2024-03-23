@@ -16,8 +16,8 @@ Function Wait-ForContainerConnectivity {
         [string]$Uri = 'http://localhost:8080'
     )
     $connected = $false; $attempts = 0; [string]$result = $null;
-    while (!$connected -and $attempts -lt 5) {
-        start-sleep 5
+    while (!$connected -and $attempts -lt 15) {
+        start-sleep 2
         try {
             $result = Invoke-SidecarRequest 'Ping'
         }
@@ -90,7 +90,7 @@ Invoke-SidecarRequest 'RestoreDatabase'
 SELECT * FROM dbo.SomeData;
 ``` #>
 
-#If we want to change the snapshot we just recreate it, there is not notion of multiple snapshots, just wether there is one or not.
+#If we want to change the snapshot we just recreate it, there is not any notion of multiple snapshots in this tool, just wether there is one or not.
 Invoke-SidecarRequest 'SnapshotDatabase'
 
 
