@@ -14,39 +14,11 @@ jobs:
         id: checkout
         uses: actions/checkout@v2
 
-      - name: Login to Docker Hub
-        id: docker_login
-        uses: docker/login-action@v1
+      - name: Docker Build & Push Action
+        uses: mr-smithers-excellent/docker-build-push@v6.3
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          
-      - name: Cache Docker layers
-        uses: actions/cache@v2
-        id: cache
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-      
-
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          context: ./
-          file: ./Dockerfile
-          builder: ${{ steps.buildx.outputs.name }}
-          push: true
-          tags:  ${{ secrets.DOCKER_HUB_USERNAME }}/dbatools-restapi:latest, ${{ secrets.DOCKER_HUB_USERNAME }}/dbatools-restapi:$(date +%s)
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
-
-      - name: Image digest
-        id: docker_digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+          image: ${{ secrets.DOCKER_HUB_USERNAME }}/dbatools-restapi
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
             
