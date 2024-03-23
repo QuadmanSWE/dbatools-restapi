@@ -11,7 +11,7 @@ $errormessage = 'errors logged, check /Errors'
 $welcomemessage = 'Hello, this is not swagger. But you can still get some info! Commands: /Ping /Errors /DebugConfig /DatabaseExists /CreateDatabase /DropDatabase /SnapshotDatabase /RestoreDatabase'
 
 Start-PodeServer -Threads 1 {
-
+    Set-DbatoolsInsecureConnection
     #errors are written to a log file, the content of each logfile can be accessed on /errors
     New-PodeLoggingMethod -File -Name 'errors' -Path '/usr/src/app/logs' | Enable-PodeErrorLogging -Levels Error, Warning, Informational, Verbose
 

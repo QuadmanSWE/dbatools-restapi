@@ -5,10 +5,28 @@
  It can be run stand alone or bundled together with an sql server server container as a side car for testing.
 
 - [dbatools-restapi](#dbatools-restapi)
+  - [Insecure by default.](#insecure-by-default)
   - [SQL Server in a container with a sidecar](#sql-server-in-a-container-with-a-sidecar)
   - [Other sql server](#other-sql-server)
     - [sa account](#sa-account)
   - [Example](#example)
+
+## Insecure by default.
+
+in the early 2020s [Microsoft finally started to take encryption seriously](https://learn.microsoft.com/en-us/sql/connect/oledb/major-version-differences?view=sql-server-ver16) and set their defaults to encrypt traffic and for clients to not automatically trust any server certificate.
+
+Chrissy LeMaire of dbatools [wrote a good blog post on what this means](https://blog.netnerds.net/2023/03/new-defaults-for-sql-server-connections-encryption-trust-certificate/).
+
+For this tool, the default stays, so I added this to the pode server.
+
+``` PowerShell
+Start-PodeServer -Threads 1 {
+    Set-DbatoolsInsecureConnection
+# ...
+}
+```
+
+I would love for someone to send a PR on allowing you to set your root cert, and to not trust but to verify in the .env file.
 
 ## SQL Server in a container with a sidecar
 
