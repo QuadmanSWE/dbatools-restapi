@@ -8,7 +8,7 @@ $snapshotsuffix = $env:SNAPSHOTSUFFIX
 
 #Messages we want to reuse
 $errormessage = 'errors logged, check /Errors'
-$welcomemessage = 'Hello, this is not swagger. But you can still get some info! Commands: /Ping /Errors /DebugConfig /DatabaseExists /CreateDatabase /DropDatabase /SnapshotDatabase /RestoreDatabase'
+$welcomemessage = 'Hello, docs are available at /openapi, and you can use swagger at /swagger'
 
 Start-PodeServer -Threads 1 {
     Set-DbatoolsInsecureConnection
@@ -117,4 +117,10 @@ Start-PodeServer -Threads 1 {
         }
     }
     #EndRegion
+
+    #Region Documentation
+    Add-PodeOAInfo -Title 'dbatools-restapi' -Description 'Abstract database lifecycle managent to an http client' -ContactName 'David Söderlund' -ContactEmail 'ds@dsoderlund.consulting' -ContactUrl 'https://dsoderlund.consulting/'
+    Enable-PodeOpenApi
+    Enable-PodeOpenApiViewer -Type Swagger
+    #EndRegion Documentation
 }
