@@ -8,15 +8,18 @@ $snapshotsuffix = $env:SNAPSHOTSUFFIX
 
 #Messages we want to reuse
 $errormessage = 'errors logged, check /Errors'
-$welcomemessage = 'Hello, this is not swagger. But you can still get some info! Commands: /Ping /Errors /DebugConfig /DatabaseExists /CreateDatabase /DropDatabase /SnapshotDatabase /RestoreDatabase'
+$welcomemessage = 'Hello, docs are available at /openapi, and you can use swagger at /swagger'
 
 Start-PodeServer -Threads 1 {
     Set-DbatoolsInsecureConnection
-    #errors are written to a log file, the content of each logfile can be accessed on /errors
+
+    # Log messages are written to a file, the content of each logfile can be accessed on /errors
     New-PodeLoggingMethod -File -Name 'errors' -Path '/usr/src/app/logs' | Enable-PodeErrorLogging -Levels Error, Warning, Informational, Verbose
+    "Logging set up!" | Write-PodeErrorLog -Level 'Informational'
 
     #this is why we are here
-    Import-PodeModule -Name dbatools;
+    Import-Module -Name dbatools -Force;
+    (Get-Module dbatools).Version.toString() | Write-PodeErrorLog -Level 'Informational'
     
     #put the http ingress on the same port that you expose in the docker file
     Add-PodeEndpoint -Address * -Port 8080 -Protocol Http
@@ -28,11 +31,10 @@ Start-PodeServer -Threads 1 {
             [string]$Database,
             [PSCredential]$SqlCredential
         )
-        Import-Module dbatools -Force; #There seems to be a bug related to how dbatools overrides the .Query in sql server management objects and when running it inside pode where it has been loaded during pode start.
-        $dbs = Get-DbaDatabase -Sqlinstance $SqlInstance -SqlCredential $SqlCredential -Database $Database
-        return !($null -eq $dbs) 
-    }
-
+        "getting database $Database from $SqlInstance" | Write-PodeErrorLog -Level 'Verbose'
+        $dbs = Get-DbaDatabase -SqlInstance $SqlInstance -SqlCredential $SqlCredential -Database $Database -ExcludeSystem
+        return ([bool]$dbs)
+    }   
     
     Add-PodePage -Name 'Ping' -ScriptBlock { $val = Test-Connection -ComputerName $env:DB_SERVICENAME -tcpport $env:DB_INTERNALPORT -ea 0; "sql port $($env:DB_INTERNALPORT) netconnection: [$val]"; }
 
@@ -49,13 +51,14 @@ Start-PodeServer -Threads 1 {
 
     #Region business end methods
     Add-PodeRoute -Method Get -Path '/DatabaseExists' -ScriptBlock {
-        Write-PodeTextResponse -Value (Get-DatabaseExists @using:splat)
+        "running /DatabaseExists" | Write-PodeErrorLog -Level 'Verbose'
+        $getdbSplat = ($using:splat).Clone()
+        Write-PodeTextResponse -Value (Get-DatabaseExists @getdbSplat)
     }
 
     Add-PodeRoute -Method Get -Path '/CreateDatabase' -ScriptBlock {
         try {
-            $instancesplat = ($using:splat).Clone()
-            $instancesplat.Remove('Database')
+            "running /CreateDatabase" | Write-PodeErrorLog -Level 'Verbose'
             if (Get-DatabaseExists @using:splat) {
                 if (Get-DbaDbSnapshot @using:splat) {
                     Remove-DbaDbSnapshot @using:splat -confirm:$false 
@@ -73,8 +76,6 @@ Start-PodeServer -Threads 1 {
 
     Add-PodeRoute -Method Get -Path '/DropDatabase' -ScriptBlock {
         try {
-            $instancesplat = ($using:splat).Clone()
-            $instancesplat.Remove('Database')
             if (Get-DbaDbSnapshot @using:splat) {
                 Remove-DbaDbSnapshot @using:splat -Confirm:$false 
             }
@@ -117,4 +118,10 @@ Start-PodeServer -Threads 1 {
         }
     }
     #EndRegion
+
+    #Region Documentation
+    Add-PodeOAInfo -Title 'dbatools-restapi' -Description 'Abstract database lifecycle managent to an http client' -ContactName 'David Söderlund' -ContactEmail 'ds@dsoderlund.consulting' -ContactUrl 'https://dsoderlund.consulting/'
+    Enable-PodeOpenApi
+    Enable-PodeOpenApiViewer -Type Swagger
+    #EndRegion Documentation
 }

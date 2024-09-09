@@ -1,4 +1,4 @@
-version: "3.9"
+name: dbatools-restapi-example
 services:
     db:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -11,7 +11,7 @@ services:
             - .env
         
     db-sidecar:
-        image: dsoderlund/dbatools-restapi:latest
+        image: dbatools-restapi:latest
         container_name: sidecar
         deploy:
             labels: [APP=pode]

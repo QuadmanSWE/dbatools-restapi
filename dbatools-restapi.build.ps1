@@ -30,7 +30,7 @@ task RunContainer {
 task TagVersion {
     $newtag = "v$((gc VERSION))"
     docker tag $dockImageName "$($name):$($newtag)"
-    Write-Host "Tagged as $($name):$($newtag)"
+    Write-Host "Tagged as $($name):$($newtag)" -ForegroundColor Blue
 }
 
 task UpdateVersion {
@@ -54,8 +54,8 @@ task UpdateVersion {
     }
 
     "$major.$minor.$patch" | out-file VERSION -Encoding utf8
-    Write-Host "New version! [$major.$minor.$patch]"
+    Write-Host "New version! [$major.$minor.$patch]" -ForegroundColor Blue
 }
-
+task bump UpdateVersion
 task ci UpdateVersion, BuildImage, TagVersion
 task . StopContainer, RemoveContainer, BuildImage, RunContainer
