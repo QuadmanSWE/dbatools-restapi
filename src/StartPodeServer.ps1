@@ -120,8 +120,8 @@ Start-PodeServer -Threads 1 {
     #EndRegion
 
     #Region Documentation
+    Enable-PodeOpenApi -Title 'dbatools-restapi'
     Add-PodeOAInfo -Title 'dbatools-restapi' -Description 'Abstract database lifecycle managent to an http client' -ContactName 'David Söderlund' -ContactEmail 'ds@dsoderlund.consulting' -ContactUrl 'https://dsoderlund.consulting/'
-    Enable-PodeOpenApi
-    Enable-PodeOpenApiViewer -Type Swagger
+    Enable-PodeOAViewer -Type Swagger
     #EndRegion Documentation
 }

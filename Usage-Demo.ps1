@@ -1,3 +1,6 @@
+# Default build
+docker build -t dbatools-restapi:latest .
+
 Push-Location .\example_implementation
 
 # Let's make sure we are at the starting state
@@ -7,7 +10,6 @@ docker-compose down
 . .\Invoke-SidecarRequest.ps1
 
 # jump in and start the containers
-
 docker-compose up -d 
 
 #Region await desired state

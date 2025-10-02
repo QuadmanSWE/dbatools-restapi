@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/powershell:latest
 
-RUN pwsh -c 'Install-Module Pode -Force -MinimumVersion 2.10.0'
+RUN pwsh -c 'Install-Module Pode -Force -MinimumVersion 2.12.1'
 RUN pwsh -c 'Install-Module dbatools -Force -MinimumVersion 2.1.0'
 
 EXPOSE 8080
