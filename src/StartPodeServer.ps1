@@ -117,6 +117,28 @@ Start-PodeServer -Threads 1 {
             Write-PodeTextResponse -Value $using:errormessage
         }
     }
+    Add-PodeRoute -Method Post -Path '/RunSqlQuery' -ScriptBlock {
+        $queryString = $WebEvent.Data.Query
+        try {
+            Invoke-DbaQuery @using:splat -Query $queryString
+            Write-PodeTextResponse -Value 'OK'
+        }
+        catch {
+            $_ | Write-PodeErrorLog
+            Write-PodeTextResponse -Value $using:errormessage
+        }
+        
+    } -PassThru |
+        Set-PodeOARouteInfo -Tags 'Queries' -PassThru |
+        Set-PodeOaRequest -RequestBody (
+            New-PodeOARequestBody -Required -ContentSchemas @{
+                'application/json' = (New-PodeOAObjectProperty -Properties @(
+                    (New-PodeOAStringProperty -Name 'Query')
+                ))
+            }
+        )
+        #Set-PodeOARequest -RequestBody (New-PodeOARequestBody -Reference 'QueryStringBody')
+
     #EndRegion
 
     #Region Documentation
