@@ -1,7 +1,7 @@
 # Default build
-docker build -t dbatools-restapi:latest .
-
 Push-Location .\example_implementation
+
+docker build -t dbatools-restapi:latest ..
 
 # Let's make sure we are at the starting state
 docker-compose down
