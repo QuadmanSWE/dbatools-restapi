@@ -9,7 +9,20 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    
+      - name: Check PSGallery
+        id: psgallerycheck
+        shell: pwsh
+        run: |
+          try {
+            $code = Invoke-WebRequest -Uri https://www.powershellgallery.com `
+              -UseBasicParsing -ErrorAction SilentlyContinue `
+              -ConnectionTimeoutSeconds 10 -OperationTimeoutSeconds 1 `
+              | Select-Object -ExpandProperty StatusCode;
+            if ($code -ge 400) { throw $code; }
+          } catch {
+            Write-Host -ForegroundColor Red "$_.Message";
+            throw 'PowerShell Gallery is not available';
+          }
       - name: Check Out Repo 
         id: checkout
         uses: actions/checkout@v2
